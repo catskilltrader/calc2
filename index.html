@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Financeira Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A2463;
+            --secondary: #D4AF37;
+            --background: #F5F5F7;
+            --text: #2D3436;
+            --light-text: #5F6C7B;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .calculator-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-family: 'Playfair+Display', serif;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: var(--light-text);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background-color: #08307D;
+        }
+        
+        #resultado {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: rgba(10, 36, 99, 0.05);
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--primary);
+            text-align: left;
+            line-height: 1.5;
+        }
+        
+        .highlight {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        
+        .disclaimer {
+            font-size: 12px;
+            color: var(--light-text);
+            margin-top: 10px;
+            font-style: italic;
+            text-align: left;
+        }
+        
+        footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--light-text);
+            border-top: 1px solid #E0E0E0;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Calculadora de Juros Compostos</h1>
+        <p class="subtitle">Calcule o valor futuro dos seus investimentos com precisão</p>
+        
+        <!-- Inputs com separação de milhares (sem decimais obrigatórios) -->
+        <div class="input-group">
+            <label for="valorInicial">Valor Inicial (R$)</label>
+            <input type="text" id="valorInicial" placeholder="Ex: 100.000" oninput="formatarMilhares(this)">
+        </div>
+        
+        <div class="input-group">
+            <label for="aporteMensal">Aporte Mensal (R$)</label>
+            <input type="text" id="aporteMensal" placeholder="Ex: 1.000" oninput="formatarMilhares(this)">
+        </div>
+        
+        <!-- Inputs originais (sem formatação automática) -->
+        <div class="input-group">
+            <label for="taxaJuros">Taxa de Juros (% ao mês)</label>
+            <input type="number" id="taxaJuros" placeholder="Ex: 1,5" step="0.01">
+        </div>
+        
+        <div class="input-group">
+            <label for="tempo">Período (meses)</label>
+            <input type="number" id="tempo" placeholder="Ex: 12">
+        </div>
+        
+        <button onclick="calcularJuros()">Calcular</button>
+        
+        <div id="resultado"></div>
+        
+        <p class="disclaimer">
+            *Inflação média no Brasil = 6% ao ano (equivalente a ~0,4867% ao mês).<br>
+            *CDI médio no Brasil = 10% ao ano (equivalente a ~0,7974% ao mês).
+        </p>
+        
+        <footer>
+            Rafael Dias - Assessoria Privada de Investimentos
+</p>
+@rdias.invest
+        </footer>
+    </div>
+
+    <script>
+        // Função para formatar milhares (ex: 100000 → "100.000")
+        function formatarMilhares(input) {
+            // Remove caracteres não numéricos
+            let valor = input.value.replace(/\D/g, '');
+            
+            // Adiciona pontos a cada 3 dígitos
+            if (valor.length > 3) {
+                valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+            
+            input.value = valor;
+        }
+
+        // Função para converter "100.000" → 100000 (float)
+        function parseMilhares(numeroFormatado) {
+            return parseFloat(numeroFormatado.replace(/\./g, '')) || 0;
+        }
+
+        // Formata números para exibição (ex: 1000 → "1.000,00")
+        function formatarMoeda(valor) {
+            return valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function calcularJuros() {
+            // Lê valores (convertendo milhares)
+            const valorInicial = parseMilhares(document.getElementById("valorInicial").value);
+            const aporteMensal = parseMilhares(document.getElementById("aporteMensal").value);
+            const taxaJuros = parseFloat(document.getElementById("taxaJuros").value.replace(',', '.')) / 100;
+            const tempo = parseInt(document.getElementById("tempo").value);
+            
+            // Validações
+            if (isNaN(taxaJuros) || isNaN(tempo) || tempo <= 0) {
+                document.getElementById("resultado").innerHTML = "Preencha todos os campos corretamente.";
+                return;
+            }
+            
+            // Cálculos (mantidos iguais)
+            let montanteNominal = valorInicial;
+            let totalAportado = valorInicial;
+            
+            for (let mes = 1; mes <= tempo; mes++) {
+                montanteNominal *= (1 + taxaJuros);
+                if (mes < tempo) {
+                    montanteNominal += aporteMensal;
+                    totalAportado += aporteMensal;
+                }
+            }
+            
+            const taxaInflacaoMensal = 0.4867 / 100;
+            let montanteReal = valorInicial;
+            
+            for (let mes = 1; mes <= tempo; mes++) {
+                montanteReal *= (1 + taxaJuros - taxaInflacaoMensal);
+                if (mes < tempo) {
+                    montanteReal += aporteMensal * Math.pow(1 - taxaInflacaoMensal, mes);
+                }
+            }
+            
+            // Exibe resultados formatados
+            document.getElementById("resultado").innerHTML = `
+                <strong>Ganho Nominal (sem inflação):</strong><br>
+                Em <span class="highlight">${tempo} meses</span>, seu investimento de <span class="highlight">R$ ${formatarMoeda(valorInicial)}</span>
+                + aportes mensais de <span class="highlight">R$ ${formatarMoeda(aporteMensal)}</span> totalizará:<br>
+                <span class="highlight">R$ ${formatarMoeda(montanteNominal)}</span> (sendo <span class="highlight">R$ ${formatarMoeda(montanteNominal - totalAportado)}</span> em juros).<br><br>
+                
+                <strong>Ganho Real* (descontando inflação):</strong><br>
+                Valor corrigido: <span class="highlight">R$ ${formatarMoeda(montanteReal)}</span> (sendo <span class="highlight">R$ ${formatarMoeda(montanteReal - totalAportado)}</span> em juros reais).`;
+        }
+    </script>
+</body>
+</html>
